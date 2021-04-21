@@ -1,5 +1,5 @@
 {
-  "name": "react-local-storage-hook",
+  "name": "@reiishikawa1208/react-local-storage-hook",
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
