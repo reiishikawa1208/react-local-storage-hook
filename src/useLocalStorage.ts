@@ -34,7 +34,7 @@ const useLocalStorage = (stateKey: string, defaultValue: any) => {
     
   }, [stateKey, setState]);
 
-  return [state, setState];
+  return {state, setState};
 }
 
 
