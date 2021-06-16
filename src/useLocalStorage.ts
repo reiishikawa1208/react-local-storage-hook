@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const useLocalStorage = (stateKey: string, defaultValue: any) => {
-  const [value, setValue] = useState(defaultValue);
+  const [storedValue, setValue] = useState(defaultValue);
 
   const isNewSession = useRef(true);
 
@@ -17,9 +17,9 @@ const useLocalStorage = (stateKey: string, defaultValue: any) => {
       return;
     }
     try {
-      localStorage.setItem(stateKey, JSON.stringify(value));
+      localStorage.setItem(stateKey, JSON.stringify(storedValue));
     } catch (error) {}
-  }, [value, stateKey, defaultValue]);
+  }, [storedValue, stateKey, defaultValue]);
 
   useEffect(() => {
     const onReceieveMessage = (e: any) => {
@@ -34,7 +34,7 @@ const useLocalStorage = (stateKey: string, defaultValue: any) => {
     
   }, [stateKey, setValue]);
 
-  return {value, setValue};
+  return {storedValue, setValue};
 }
 
 
