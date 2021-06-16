@@ -1,37 +1,41 @@
-import { useEffect, useState } from "react";
-import { DispatchEvent, ListenEvent } from "./LocalStorageEvent";
+import { useEffect, useRef, useState } from "react";
 
-const useLocalStorage = (key: string, initialValue: any) => {
-  const [storedValue, setStoredValue] = useState(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.log(error);
-      return initialValue;
-    }
-  });
+const useLocalStorage = (stateKey: string, defaultValue: any) => {
+  const [state, setState] = useState(defaultValue);
 
-  const setValue = (value: any) => {
-    DispatchEvent(key, value);
-  };
+  const isNewSession = useRef(true);
 
   useEffect(() => {
-    const f = (value: any) => {
-      try {
-        const valueToStore =
-          value instanceof Function ? value(storedValue) : value;
-        setStoredValue(valueToStore);
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      } catch (error) {
-        console.log(error);
+    if (isNewSession.current) {
+      const currentState = localStorage.getItem(stateKey);
+      if (currentState) {
+        setState(JSON.parse(currentState));
+      } else {
+        setState(defaultValue);
+      }
+      isNewSession.current = false;
+      return;
+    }
+    try {
+      localStorage.setItem(stateKey, JSON.stringify(state));
+    } catch (error) {}
+  }, [state, stateKey, defaultValue]);
+
+  useEffect(() => {
+    const onReceieveMessage = (e: any) => {
+      const { key, newValue } = e;
+      if (key === stateKey) {
+        setState(JSON.parse(newValue));
       }
     };
+    window.addEventListener("storage", onReceieveMessage);
 
-    ListenEvent(key, f);
-  }, [key, storedValue]);
+    return () => window.removeEventListener("storage", onReceieveMessage);
+    
+  }, [stateKey, setState]);
 
-  return { storedValue, setValue };
-};
+  return [state, setState];
+}
+
 
 export default useLocalStorage;
