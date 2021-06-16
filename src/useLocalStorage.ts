@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const useLocalStorage = (stateKey: string, defaultValue: any) => {
-  const [state, setState] = useState(defaultValue);
+  const [value, setValue] = useState(defaultValue);
 
   const isNewSession = useRef(true);
 
@@ -9,32 +9,32 @@ const useLocalStorage = (stateKey: string, defaultValue: any) => {
     if (isNewSession.current) {
       const currentState = localStorage.getItem(stateKey);
       if (currentState) {
-        setState(JSON.parse(currentState));
+        setValue(JSON.parse(currentState));
       } else {
-        setState(defaultValue);
+        setValue(defaultValue);
       }
       isNewSession.current = false;
       return;
     }
     try {
-      localStorage.setItem(stateKey, JSON.stringify(state));
+      localStorage.setItem(stateKey, JSON.stringify(value));
     } catch (error) {}
-  }, [state, stateKey, defaultValue]);
+  }, [value, stateKey, defaultValue]);
 
   useEffect(() => {
     const onReceieveMessage = (e: any) => {
       const { key, newValue } = e;
       if (key === stateKey) {
-        setState(JSON.parse(newValue));
+        setValue(JSON.parse(newValue));
       }
     };
     window.addEventListener("storage", onReceieveMessage);
 
     return () => window.removeEventListener("storage", onReceieveMessage);
     
-  }, [stateKey, setState]);
+  }, [stateKey, setValue]);
 
-  return {state, setState};
+  return {value, setValue};
 }
 
 
